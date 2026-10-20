@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>数到100 · 策略挑战</title>
+<style>
+:root{--navy:#081832;--panel:#10284d;--gold:#e0b757;--pale:#fadd96;--text:#f7f9fc;--muted:#b2c2da}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#07152e,#102b50);font-family:"Microsoft YaHei",Arial,sans-serif;color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:18px}
+.app{width:min(900px,100%);border:1px solid #c9a34d;border-radius:22px;padding:clamp(18px,4vw,38px);background:linear-gradient(145deg,#0b1d3aee,#10294dee);box-shadow:0 18px 55px #0006}
+.kicker{letter-spacing:3px;color:var(--gold);font-size:12px;font-weight:700}.top{display:flex;justify-content:space-between;gap:16px;align-items:start}.title{font-size:clamp(30px,5vw,48px);color:var(--pale);font-weight:800;margin:8px 0}.sub{color:var(--muted);line-height:1.7}.pill{border:1px solid #7d6a3e;border-radius:99px;padding:8px 13px;color:var(--pale);font-size:12px;white-space:nowrap}
+.board{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0}.panel{background:#ffffff0b;border:1px solid #ffffff20;border-radius:16px;padding:20px}.label{color:var(--muted);font-size:13px}.number{font-size:clamp(54px,10vw,88px);font-weight:800;color:var(--pale);line-height:1.1;margin:8px 0}.turn{font-size:21px;font-weight:700}.progress{height:8px;background:#53627a;border-radius:99px;overflow:hidden;margin-top:14px}.bar{height:100%;background:linear-gradient(90deg,#c99a37,#ffe3a0);width:0%;transition:width .25s}
+.actions{display:flex;gap:12px;flex-wrap:wrap}.btn{border:0;border-radius:12px;padding:15px 20px;font-size:16px;font-weight:800;cursor:pointer;background:var(--gold);color:#0a1b35;flex:1;min-width:155px}.btn.alt{background:var(--pale)}.btn.ghost{background:#ffffff12;color:var(--pale);border:1px solid #a88943}.btn:disabled{opacity:.35;cursor:not-allowed}
+.status{margin:16px 0;padding:14px 16px;border-radius:12px;background:#ffffff0d;color:var(--pale);line-height:1.6}.log{display:flex;flex-wrap:wrap;gap:8px;max-height:125px;overflow:auto;margin-top:10px}.entry{border-radius:9px;padding:8px 10px;background:#e0b757;color:#0a1b35;font-size:13px;font-weight:700}.entry.cpu{background:#30496d;color:white}.foot{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:18px;color:var(--muted);font-size:12px}.hidden{display:none}
+@media(max-width:600px){.top{display:block}.pill{display:inline-block;margin-top:10px}.board{grid-template-columns:1fr}.panel{padding:16px}.foot{display:block}.foot span{display:block;margin-top:6px}}
+</style></head><body><main class="app">
+<div class="top"><div><div class="kicker">NUMBER STRATEGY GAME</div><h1 class="title">数到 <span>100</span></h1><div class="sub">每次报 1 个或 2 个连续数字，先报到 100 的人获胜。</div></div><div class="pill">深蓝金色 · 互动挑战</div></div>
+<div class="board">
+<section class="panel"><div class="label">当前数字</div><div id="current" class="number">0</div><div class="progress"><div id="bar" class="bar"></div></div></section>
+<section class="panel"><div class="label">当前回合</div><div id="turn" class="turn" style="margin-top:12px">玩家 1</div><div id="roundHint" class="sub" style="margin-top:10px">请选择本回合报数个数。</div></section>
+</div>
+<div id="status" class="status">游戏开始！玩家 1 先手。请选择报 1 个或 2 个数字。</div>
+<div class="actions"><button id="one" class="btn">报 1 个数字（+1）</button><button id="two" class="btn alt">报 2 个数字（+2）</button><button id="reset" class="btn ghost">重新开始 ↻</button></div>
+<section class="panel" style="margin-top:20px"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><strong>报数记录</strong><span class="label">玩家 1 / 玩家 2 轮流</span></div><div id="log" class="log"><span class="label">尚未开始记录</span></div></section>
+<div class="foot"><span>玩法：两位玩家轮流报数 · 先到 100 获胜</span><span>提示：适合课堂互动与演示</span></div>
+</main>
+<script>
+(()=>{let n=0,p=1,done=false,log=[];const $=id=>document.getElementById(id);
+function render(){ $('current').textContent=n;$('bar').style.width=n+'%';$('turn').textContent=done?'游戏结束':'玩家 '+p;$('roundHint').textContent=done?'本局已结束，可重新开始。':'请选择本回合报数个数。';$('one').disabled=done||n>=100;$('two').disabled=done||n>=99;$('log').innerHTML='';if(!log.length){$('log').innerHTML='<span class="label">尚未开始记录</span>'}log.forEach(e=>{let d=document.createElement('span');d.className='entry'+(e.p===2?' cpu':'');d.textContent='玩家 '+e.p+'：'+e.nums.join('、');$('log').appendChild(d)});}
+function move(k){if(done||n+k>100)return;let nums=[];for(let i=0;i<k;i++)nums.push(++n);log.push({p,nums});if(n>=100){done=true;$('status').textContent='🎉 玩家 '+p+' 获胜！率先报到 100。点击“重新开始”再来一局。'}else{p=p===1?2:1;$('status').textContent='已报出 '+nums.join('、')+'。轮到玩家 '+p+'。'}render()}
+$('one').onclick=()=>move(1);$('two').onclick=()=>move(2);$('reset').onclick=()=>{n=0;p=1;done=false;log=[];$('status').textContent='游戏开始！玩家 1 先手。请选择报 1 个或 2 个数字。';render()};render();
+})();
+</script></body></html>
